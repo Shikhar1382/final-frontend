@@ -111,7 +111,7 @@ function App() {
     formData.append("image", image);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/ocr", {
+      const response = await fetch("https://extract-text-from-images-using-tesseract-ovvh.onrender.com/ocr", {
         method: "POST",
         body: formData,
       });
@@ -134,7 +134,7 @@ function App() {
 
     setIsSummarizing(true);
     try {
-      const response = await fetch("http://127.0.0.1:5000/summarize", {
+      const response = await fetch("https://extract-text-from-images-using-tesseract-ovvh.onrender.com/summarize", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
