@@ -15,6 +15,8 @@ function App() {
   // const streamRef = useRef(null);
   // const extractedTextRef = useRef(null);
   // const summaryRef = useRef(null);
+  REACT_APP_API_URL="https://your-backend-domain.com"
+
 
   // Get available camera devices
   // useEffect(() => {
@@ -116,7 +118,7 @@ function App() {
     formData.append("image", image);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/ocr", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/ocr`, {
         method: "POST",
         body: formData,
       });
@@ -138,7 +140,7 @@ function App() {
     if (!extractedText){
       setIsSummarizing(true);
     try {
-      const response = await fetch("http://127.0.0.1:5000/summarize", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -159,7 +161,7 @@ function App() {
 
     setIsSummarizing(true);
     try {
-      const response = await fetch("http://127.0.0.1:5000/summarize", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
