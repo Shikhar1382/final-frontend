@@ -15,7 +15,7 @@ function App() {
   // const streamRef = useRef(null);
   // const extractedTextRef = useRef(null);
   // const summaryRef = useRef(null);
-  REACT_APP_API_URL="https://your-backend-domain.com"
+  REACT_APP_API_URL="https://extract-text-from-images-using-tesseract-8yn0.onrender.com"
 
 
   // Get available camera devices
