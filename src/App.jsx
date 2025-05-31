@@ -221,7 +221,6 @@ function App() {
                 <div className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg cursor-pointer transition-colors text-center">
                   Upload Image
                   <input
-                    accept="image/*"
                     className="hidden"
                     id="image-upload"
                     type="file"
