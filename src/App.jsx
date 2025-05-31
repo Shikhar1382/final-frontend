@@ -3,43 +3,44 @@ import React, { useState, useRef, useEffect } from "react";
 function App() {
   const [image, setImage] = useState(null);
   const [extractedText, setExtractedText] = useState("");
+  const [inputText, setInputText] = useState("");
   const [summary, setSummary] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
-  const [devices, setDevices] = useState([]);
+  // const [showCamera, setShowCamera] = useState(false);
+  // const [devices, setDevices] = useState([]);
   const [copiedExtracted, setCopiedExtracted] = useState(false);
   const [copiedSummary, setCopiedSummary] = useState(false);
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-  const extractedTextRef = useRef(null);
-  const summaryRef = useRef(null);
+  // const videoRef = useRef(null);
+  // const streamRef = useRef(null);
+  // const extractedTextRef = useRef(null);
+  // const summaryRef = useRef(null);
 
   // Get available camera devices
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(
-          (device) => device.kind === "videoinput"
-        );
-        setDevices(videoDevices);
-      } catch (err) {
-        console.error("Error enumerating devices:", err);
-      }
-    };
-    getDevices();
-  }, []);
+  // useEffect(() => {
+  //   const getDevices = async () => {
+  //     try {
+  //       const devices = await navigator.mediaDevices.enumerateDevices();
+  //       const videoDevices = devices.filter(
+  //         (device) => device.kind === "videoinput"
+  //       );
+  //       setDevices(videoDevices);
+  //     } catch (err) {
+  //       console.error("Error enumerating devices:", err);
+  //     }
+  //   };
+  //   getDevices();
+  // }, []);
 
   // Start camera stream when showCamera is true
-  useEffect(() => {
-    if (showCamera && videoRef.current) {
-      startCamera();
-    }
-    return () => {
-      stopCamera();
-    };
-  }, [showCamera]);
+  // useEffect(() => {
+  //   if (showCamera && videoRef.current) {
+  //     startCamera();
+  //   }
+  //   return () => {
+  //     stopCamera();
+  //   };
+  // }, [showCamera]);
 
   // Reset copied indicators after 2 seconds
   useEffect(() => {
@@ -56,52 +57,56 @@ function App() {
     }
   }, [copiedSummary]);
 
-  const startCamera = async () => {
-    try {
-      const constraints = {
-        video: { facingMode: "environment" }, // Use rear camera by default
-      };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      videoRef.current.srcObject = stream;
-      streamRef.current = stream;
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      alert("Could not access the camera. Please check permissions.");
-    }
-  };
+  // const startCamera = async () => {
+  //   try {
+  //     const constraints = {
+  //       video: { facingMode: "environment" }, // Use rear camera by default
+  //     };
+  //     const stream = await navigator.mediaDevices.getUserMedia(constraints);
+  //     videoRef.current.srcObject = stream;
+  //     streamRef.current = stream;
+  //   } catch (err) {
+  //     console.error("Error accessing camera:", err);
+  //     alert("Could not access the camera. Please check permissions.");
+  //   }
+  // };
 
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
-  };
+  // const stopCamera = () => {
+  //   if (streamRef.current) {
+  //     streamRef.current.getTracks().forEach((track) => track.stop());
+  //   }
+  // };
 
-  const captureImage = () => {
-    if (!videoRef.current) return;
+  // const captureImage = () => {
+  //   if (!videoRef.current) return;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+  //   const canvas = document.createElement("canvas");
+  //   canvas.width = videoRef.current.videoWidth;
+  //   canvas.height = videoRef.current.videoHeight;
+  //   const ctx = canvas.getContext("2d");
+  //   ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
-    canvas.toBlob(
-      (blob) => {
-        const file = new File([blob], "captured-image.jpg", {
-          type: "image/jpeg",
-        });
-        setImage(file);
-        setShowCamera(false);
-        stopCamera();
-      },
-      "image/jpeg",
-      0.9
-    );
-  };
+  //   canvas.toBlob(
+  //     (blob) => {
+  //       const file = new File([blob], "captured-image.jpg", {
+  //         type: "image/jpeg",
+  //       });
+  //       setImage(file);
+  //       setShowCamera(false);
+  //       stopCamera();
+  //     },
+  //     "image/jpeg",
+  //     0.9
+  //   );
+  // };
 
   const handleImageUpload = (e) => {
     setImage(e.target.files[0]);
   };
+
+  const handleTextChange = (e) => {
+    setInputText(e.target.value)
+  }
 
   const extractText = async () => {
     if (!image) return;
@@ -111,7 +116,7 @@ function App() {
     formData.append("image", image);
 
     try {
-      const response = await fetch("https://extract-text-from-images-using-tesseract-ovvh.onrender.com/ocr", {
+      const response = await fetch("http://127.0.0.1:5000/ocr", {
         method: "POST",
         body: formData,
       });
@@ -130,11 +135,31 @@ function App() {
   };
 
   const summarizeText = async () => {
-    if (!extractedText) return;
+    if (!extractedText){
+      setIsSummarizing(true);
+    try {
+      const response = await fetch("http://127.0.0.1:5000/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: inputText }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Summarization failed");
+      setSummary(data.summary);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsSummarizing(false);
+    }
+    return;
+    }
 
     setIsSummarizing(true);
     try {
-      const response = await fetch("https://extract-text-from-images-using-tesseract-ovvh.onrender.com/summarize", {
+      const response = await fetch("http://127.0.0.1:5000/summarize", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,6 +209,9 @@ function App() {
           </h1>
 
           {/* Image Upload Section */}
+          <div>
+            <input name="text" value={inputText} onChange={handleTextChange} placeholder="Input Text" className="border m-2 p-2 w-full h-[20vh]" />
+          </div>
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
               {/* Upload Image Button */}
@@ -196,13 +224,13 @@ function App() {
                     id="image-upload"
                     type="file"
                     onChange={handleImageUpload}
-                    capture={false}
+                    capture="environment"
                   />
                 </div>
               </label>
 
               {/* Camera Button */}
-              <button
+              {/* <button
                 className={`flex-1 font-medium py-3 px-6 rounded-lg transition-colors ${
                   showCamera
                     ? "bg-red-600 hover:bg-red-700 text-white"
@@ -211,7 +239,7 @@ function App() {
                 onClick={() => setShowCamera(!showCamera)}
               >
                 {showCamera ? "Close Camera" : "Take Photo"}
-              </button>
+              </button> */}
             </div>
 
             {image && (
@@ -222,7 +250,7 @@ function App() {
           </div>
 
           {/* Camera View */}
-          {showCamera && (
+          {/* {showCamera && (
             <div className="mb-8 bg-black rounded-lg overflow-hidden relative">
               <video
                 ref={videoRef}
@@ -240,7 +268,7 @@ function App() {
                 </button>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Extract Text Button */}
           <div className="flex justify-center mb-8">
@@ -261,6 +289,28 @@ function App() {
                 </span>
               ) : (
                 "Extract Text"
+              )}
+            </button>
+            {/* summary button */}
+            <button
+              className={`bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg mx-2 transition-colors ${
+                !(extractedText || inputText) || isSummarizing
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              onClick={summarizeText}
+              disabled={!(extractedText || inputText) || isSummarizing}
+            >
+              {isSummarizing ? (
+                <span className="inline-flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Summarizing...
+                </span>
+              ) : (
+                "Summarize Text"
               )}
             </button>
           </div>
@@ -301,12 +351,13 @@ function App() {
                   <p className="text-gray-700 whitespace-pre-wrap">{extractedText}</p>
                 </div>
               </div>
-
-              {/* Summary Section */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 h-full">
+            </div>
+          )}
+          {/* Summary Section */}
+              {summary && (<div className="bg-gray-50 border border-gray-200 rounded-lg p-6 h-full">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-gray-800">Summary</h2>
-                  {summary && (
+                  
                     <div className="flex items-center gap-2">
                       <span className="text-sm bg-green-100 text-green-800 py-1 px-3 rounded-full">
                         {summary.split(/\s+/).length} words
@@ -331,40 +382,14 @@ function App() {
                         )}
                       </button>
                     </div>
-                  )}
+                  
                 </div>
-                {!summary ? (
-                  <div className="flex flex-col items-center justify-center h-96 bg-white rounded border border-gray-200">
-                    <button
-                      className={`bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition-colors ${
-                        !extractedText || isSummarizing
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                      onClick={summarizeText}
-                      disabled={!extractedText || isSummarizing}
-                    >
-                      {isSummarizing ? (
-                        <span className="inline-flex items-center">
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Summarizing...
-                        </span>
-                      ) : (
-                        "Summarize Text"
-                      )}
-                    </button>
-                  </div>
-                ) : (
+                
                   <div className="bg-white p-4 rounded border border-gray-200 h-96 overflow-y-auto">
                     <p className="text-gray-700">{summary}</p>
                   </div>
-                )}
-              </div>
-            </div>
-          )}
+                
+              </div>)}
         </div>
       </div>
     </div>
