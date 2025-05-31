@@ -226,7 +226,6 @@ function App() {
                     id="image-upload"
                     type="file"
                     onChange={handleImageUpload}
-                    capture="environment"
                   />
                 </div>
               </label>
