@@ -118,7 +118,7 @@ function App() {
     formData.append("image", image);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/ocr`, {
+      const response = await fetch(`${REACT_APP_API_URL}/ocr`, {
         method: "POST",
         body: formData,
       });
@@ -140,7 +140,7 @@ function App() {
     if (!extractedText){
       setIsSummarizing(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/summarize`, {
+      const response = await fetch(`${REACT_APP_API_URL}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +161,7 @@ function App() {
 
     setIsSummarizing(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/summarize`, {
+      const response = await fetch(`${REACT_APP_API_URL}/summarize`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
