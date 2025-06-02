@@ -313,14 +313,15 @@ function App() {
                 "Summarize Text"
               )}
             </button>
-            {
-              isExtracting && (
+            
+          </div>
+          {
+            isExtracting && (
                 <div className="w-full flex items-center justify-center">
-                  <h1>Have patience Extraction teakes a minute</h1>
+                  <h1>Have patience Extraction takes a minute</h1>
                 </div>
               )
             }
-          </div>
 
           {/* Results Section */}
           {extractedText && (
